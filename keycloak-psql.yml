@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  postgres:
+      image: postgres
+      volumes:
+        - ./postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+  keycloak:
+      image: quay.io/keycloak/keycloak:22.0.1
+      environment:
+        DB_VENDOR: POSTGRES
+        DB_ADDR: postgres
+        DB_DATABASE: keycloak
+        DB_USER: keycloak
+        DB_SCHEMA: public
+        DB_PASSWORD: password
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+        # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+        #JDBC_PARAMS: "ssl=true"
+      command: start-dev
+      volumes:
+        # - type: bind
+        #   source: ./X.jar
+        #   target: /opt/keycloak/providers/X.jar
+        - ./theme/keywind:/opt/keycloak/themes/keywind
+      ports:
+        - 8088:8080
+      depends_on:
+        - postgres
+
+
+# ### to run
+# `docker compose -f keycloak-psql.yml up`
+
+# ### to stop
+# `docker compose -f keycloak-psql.yml down`
+
+### to rebuild as new:
+# `docker compose -f keycloak-psql.yml down -v`
+# `docker compose -f keycloak-psql.yml rm -fsv`
+# `docker compose -f keycloak-psql.yml up --build --force-recreate`
+
